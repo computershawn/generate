@@ -1,7 +1,7 @@
 const { createCanvas } = require('canvas');
 const fs = require('fs');
 
-// function gen(frameIndex) {
+// function generateFrame(frameIndex) {
 //   const width = 640;
 //   const height = 360;
 
@@ -35,11 +35,11 @@ function drawCircle(context, x, y, radius, color) {
 
 function randomColor() {
   const colors = [
-    'rgba(16, 25, 66, 0.72)',
-    'rgba(128, 4, 58, 0.72)',
-    'rgba(246, 12, 73, 0.72)',
-    'rgba(240, 149, 128, 0.72)',
-    'rgba(255, 255, 255, 0.72)'
+    'rgba(84, 0, 69, 0.72)',
+    'rgba(198, 0, 82, 0.72)',
+    'rgba(255, 113, 75, 0.72)',
+    'rgba(234, 255, 135, 0.72)',
+    'rgba(172, 255, 233, 0.72)',
   ];
 
   // Pick a random index between 0 and 4, because there are
@@ -50,38 +50,122 @@ function randomColor() {
   return colors[randomIndex];
 }
 
-async function gen(frameIndex) {
-  const width = 640;
-  const height = 360;
+function randomValueBetween(minValue, maxValue) {
+  return minValue + Math.random() * (maxValue - minValue);
+}
 
+// async function generateFrame(frameIndex) {
+//   const width = 640;
+//   const height = 360;
+
+//   const canv = createCanvas(width, height);
+//   const ctx = canv.getContext('2d');
+
+//   ctx.fillStyle = '#888892';
+//   ctx.fillRect(0, 0, width, height);
+//   const numCircles = 24;
+
+//   for(let i = 0; i < numCircles; i++) {
+//     const r = 24;
+//     const x = Math.round(Math.random() * width);
+//     const y = Math.round(Math.random() * height);
+//     const co = randomColor();
+
+//     drawCircle(ctx, x, y, r, co);
+//   }
+
+//   const buf = canv.toBuffer('image/png');
+//   await fs.promises.writeFile(`./frames/frame-${frameIndex}.png`, buf);
+// }
+
+// // const index = Math.round(Math.random() * 10000);
+// // for(let i = index; i < index + 3; i++) {
+// //   generateFrame(i);
+// // }
+
+// function onComplete() {
+//   console.log('we did it!');
+// }
+
+// generateFrame()
+//   .then(onComplete);
+
+const width = 640;
+const height = 360;
+const numCircles = 24;
+const circles = [];
+const duration = 4;
+const fps = 6;
+const numFrames = fps * duration;
+
+function initCircles() {
+  for (let i = 0; i < numCircles; i++) {
+    // const radius = 24;
+    const radius = randomValueBetween(8, 48);
+    const xPos = Math.round(Math.random() * width);
+    const yPos = Math.round(Math.random() * height);
+    const co = randomColor();
+    const spd = 4 + Math.round(Math.random() * 24);
+
+    circles.push({
+      radius, xPos, yPos, co, spd
+    });
+  }
+}
+
+function updateCircles() {
+  circles.forEach(function (circ) {
+    circ.yPos -= circ.spd;
+
+    if (circ.yPos < -1 * circ.radius) {
+      circ.yPos = height + circ.radius;
+    }
+  });
+}
+
+function generateFrame(frameIndex, folderName) {
   const canv = createCanvas(width, height);
   const ctx = canv.getContext('2d');
 
-  ctx.fillStyle = '#888892';
+  ctx.fillStyle = '#f0f0f0';
   ctx.fillRect(0, 0, width, height);
-  const numCircles = 24;
 
-  for(let i = 0; i < numCircles; i++) {
-    const r = 24;
-    const x = Math.round(Math.random() * width);
-    const y = Math.round(Math.random() * height);
-    const co = randomColor();
-  
-    drawCircle(ctx, x, y, r, co);
-  }
+  circles.forEach(function (c) {
+    drawCircle(ctx, c.xPos, c.yPos, c.radius, c.co);
+  });
 
   const buf = canv.toBuffer('image/png');
-  await fs.promises.writeFile(`./frames/frame-${frameIndex}.png`, buf);
+  const filename = `frame-${frameIndex}.png`;
+  
+  fs.writeFileSync(`./${folderName}/${filename}`, buf);
 }
 
-// const index = Math.round(Math.random() * 10000);
-// for(let i = index; i < index + 3; i++) {
-//   gen(i);
-// }
+function fakeId() {
+  const chars = '0123456789ABCDEF';
+  const temp = [];
+  for(let i = 0; i < 6; i++) {
+    const index = Math.floor(Math.random() * chars.length);
+    temp.push(chars[index]);
+  }
 
-function onComplete() {
-  console.log('we did it!');
+  return temp.join('');  
 }
 
-gen()
-  .then(onComplete);
+function main() {
+  const id = fakeId();
+  const folder = `frames/frameset-${id}`;
+  fs.mkdirSync(folder);
+
+  initCircles();
+
+  for (let i = 0; i < numFrames; i++) {
+    generateFrame(i, folder);
+    updateCircles();
+  }
+}
+
+main();
+
+
+
+
