@@ -1,54 +1,42 @@
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
 const ffmpeg = require('fluent-ffmpeg')
-const fs = require('fs')
 const path = require('path')
-const stream = require('stream')
-// const multer = require('multer')
 
 ffmpeg.setFfmpegPath(ffmpegPath)
-// const storage = multer.memoryStorage()
-// const mult = multer({ storage })
-
-// class WritableChunkCache extends stream.Writable {
-
-//   constructor(options) {
-//     super(options)
-//     this._chunks = []
-//   }
-
-//   write(chunk, encoding, callback) {
-//     this._chunks.push(chunk)
-//     if (typeof callback === 'function') callback()
-//   }
-
-//   writev(chunks, callback) {
-//     this._chunks = this._chunks.concat(chunks)
-//     if (typeof callback === 'function') callback()
-//   }
-
-//   get buffer() {
-//     return Buffer.concat(this._chunks)
-//   }
-// }
 
 exports.transcode = function (req, res) {
   // make sure you set the correct path to your video file
-  var proc = ffmpeg()
-    // .input(`${__dirname}/frames/frameset-6D4BAD/frame-9948.png`)
-    // .addInput(`/frames/frameset-6D4BAD/frame-*.png`)
-    // .addInput(path.resolve("./tmp/*.jpg")
-    .addInput(path.resolve('./frames/frameset-6D4BAD/frame-*.png'))
-    .inputOptions("-pattern_type glob")
-    .videoCodec('libx264')
-    .format('mp4')
-    .size('1280x720')
-    // using 25 fps
-    .fps(25)
-    // setup event handlers
-    .on("progress", (data) => {
-      // log number of frames complete
-      console.log("Frames completed:", data.frames);
-    })
+  const framesFolder = 'frameset-71E677';
+  const framesPerSec = 25;
+  const resolution = '1280x720';
+  const codec = 'libx264';
+  // const codec = 'h264_videotoolbox';
+  const outputFormat = 'mp4';
+
+  // ffmpeg.getAvailableCodecs(function(err, codecs) {
+  //   console.log('Available codecs:');
+  //   console.dir(codecs);
+  // });
+  // return;
+
+  const proc = ffmpeg()
+    .addInput(path.resolve(`./frames/${framesFolder}/frame-%d.png`))
+    .inputOptions('-pattern_type sequence')
+    .outputOptions([
+      `-r ${framesPerSec}`,
+      '-pix_fmt yuv420p',
+      // scale and crop to HD
+      // `-vf scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080`
+    ])
+    .videoCodec(codec)
+    .format(outputFormat)
+    .size(resolution)
+    // .fps(framesPerSec)
+    .noAudio()
+    // .on("progress", (data) => {
+    //   // log number of frames complete
+    //   console.log("Frames completed:", data.frames);
+    // })
     .on('end', () => {
       const message = 'file has been converted succesfully';
       console.log(message);
@@ -58,7 +46,7 @@ exports.transcode = function (req, res) {
       console.error(err, args)
       res.send(err)
     })
-    .save(`${__dirname}/tmp/test-${Date.now()}.mp4`);
+    .save(path.resolve(`./tmp/test-${Date.now()}.mp4`));
 
 
   // // handle multipart form data

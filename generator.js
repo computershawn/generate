@@ -162,6 +162,8 @@ function main() {
     generateFrame(i, folder);
     updateCircles();
   }
+
+  console.log('Done writing frames to image files');
 }
 
 main();
