@@ -95,7 +95,7 @@ const height = 360;
 const numCircles = 24;
 const circles = [];
 const duration = 4;
-const fps = 6;
+const fps = 25;
 const numFrames = fps * duration;
 
 function initCircles() {
@@ -143,7 +143,7 @@ function generateFrame(frameIndex, folderName) {
 function fakeId() {
   const chars = '0123456789ABCDEF';
   const temp = [];
-  for(let i = 0; i < 6; i++) {
+  for(let i = 0; i < 8; i++) {
     const index = Math.floor(Math.random() * chars.length);
     temp.push(chars[index]);
   }
@@ -153,7 +153,7 @@ function fakeId() {
 
 function main() {
   const id = fakeId();
-  const folder = `frames/frameset-${id}`;
+  const folder = `transcode/frames/frameset-${id}`;
   fs.mkdirSync(folder);
 
   initCircles();

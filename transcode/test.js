@@ -8,14 +8,25 @@ const urlRemote = 'https://us-central1-frame-generate-4096.cloudfunctions.net/tr
 
 const url = argv.dev ? urlDev : urlRemote;
 
+// request.post(url, {
+//   formData: {
+//     video: fs.createReadStream(`${__dirname}/mountain-sky-1.mp4`)
+//   }
+// }, (err, res, body) => {
+//   if (err) {
+//     return console.error(err, res, body);
+//   }
+//   if (typeof body === 'string') body = JSON.parse(body);
+//   fs.writeFileSync('./tmp/buffer.mp4', Buffer.from(body.buffer.data));
+// });
+
 request.post(url, {
-  formData: {
-    video: fs.createReadStream(`${__dirname}/mountain-sky-1.mp4`)
-  }
 }, (err, res, body) => {
   if (err) {
     return console.error(err, res, body);
   }
-  if (typeof body === 'string') body = JSON.parse(body);
-  fs.writeFileSync('./tmp/buffer.mp4', Buffer.from(body.buffer.data));
+
+  return console.log(res);
+  // if (typeof body === 'string') body = JSON.parse(body);
+  // fs.writeFileSync('./tmp/buffer.mp4', Buffer.from(body.buffer.data));
 });

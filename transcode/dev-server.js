@@ -13,4 +13,5 @@ const port = 3030;
 const http = require('http');
 app.set('port', port);
 const server = http.createServer(app);
+console.log(`dev server is listening on port ${port}`);
 server.listen(port);
